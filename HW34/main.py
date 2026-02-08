@@ -1,4 +1,5 @@
 import collections
+import random
 
 def getTextFromFile(filePath):
     with open(filePath, 'r') as file:
@@ -44,6 +45,23 @@ def getTop5(inputProb):
     for i in range(0,5):
         print(sorted_probs[i])
 
+def perplexity(inputTestTokens, inputBiGram):
+    biGrams = []
+    for i in range(len(inputTestTokens) - 1):
+        biGrams.append((inputTestTokens[i], inputTestTokens[i+1])) #Turn test tokens into bigram (maybe make this a function?)
+
+    P = 1.0   # P(w1...wN) for function
+    N = len(biGrams) #number of biGrams in test sentence
+
+    for bg in biGrams:
+        if bg in inputBiGram:
+            prob = inputBiGram[bg]
+        else:
+            prob = 0.0000000001  # avoid zero
+        P = P * prob   # multiply probabilities
+
+    perplex = (1 / P) ** (1 / N) #Same as root-N of 1/P
+    return perplex
 
 def main():
     tokens = tokenize(getTextFromFile('input.txt'))
@@ -54,5 +72,8 @@ def main():
     print("################" + '\n' + "LAPLACE PROBS")
     getTop5(biGramProbsLaplace)
     print("################" + '\n' + "PERPLEXITY")
+    testTokens = tokenize("you should inform your head ta if you are ill") #test sentence/corpus
+    perplexityProb = perplexity(testTokens, biGramProbsLaplace)
+    print("Perplexity:", perplexityProb)
 
 main()
